@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <title>ฟอร์มสุขภาพ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+
+<body class="bg-[url(1.jpg)] bg-cover bg-no-repeat bg-center min-h-screen border-gray-100 min-h-screen flex items-center justify-center">
+    <div class="bg-white shadow-md rounded p-8 w-full max-w-xl">
+        <h2 class="text-2xl font-bold mb-6 text-center">ฟอร์มแบบสอบถามสุขภาพ</h2>
+
+        <form id="healthForm" class="space-y-4">
+            <!-- อายุ -->
+            <div>
+                <label class="block font-medium">อายุ</label>
+                <input type="number" id="age" class="w-full mt-1 border rounded p-2" min="0" />
+            </div>
+
+            <!-- เพศ -->
+            <div>
+                <label class="block font-medium">เพศ</label>
+                <div class="flex gap-4 mt-1">
+                    <label><input type="radio" name="gender" value="ชาย" /> ชาย</label>
+                    <label><input type="radio" name="gender" value="หญิง" /> หญิง</label>
+                </div>
+            </div>
+
+            <!-- น้ำหนัก -->
+            <div>
+                <label class="block font-medium">น้ำหนัก (กก.)</label>
+                <input type="number" id="weight" class="w-full mt-1 border rounded p-2" />
+            </div>
+
+            <!-- ส่วนสูง -->
+            <div>
+                <label class="block font-medium">ส่วนสูง (ซม.)</label>
+                <input type="number" id="height" class="w-full mt-1 border rounded p-2" />
+            </div>
+
+            <!-- โรคประจำตัว -->
+            <div>
+                <label class="flex items-center gap-2">
+                    <input type="checkbox" id="hasDisease" />
+                    มีโรคประจำตัว
+                </label>
+                <textarea id="diseaseDetail" class="w-full mt-2 p-2 border rounded hidden"
+                    placeholder="โปรดระบุโรคประจำตัว..."></textarea>
+            </div>
+
+            <button type="submit"
+                class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">ส่งข้อมูล</button>
+        </form>
+    </div>
+
+    <!-- Modal -->
+    <div id="resultModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-md p-6 text-center w-96">
+            <h3 class="text-xl font-semibold mb-4">ผลการประเมินสุขภาพ</h3>
+            <p id="bmiResult" class="text-lg"></p>
+            <button onclick="closeModal()"
+                class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">ปิด</button>
+        </div>
+    </div>
+
+    <script>
+        const hasDiseaseCheckbox = document.getElementById("hasDisease");
+        const diseaseDetail = document.getElementById("diseaseDetail");
+        const form = document.getElementById("healthForm");
+
+        hasDiseaseCheckbox.addEventListener("change", () => {
+            diseaseDetail.classList.toggle("hidden", !hasDiseaseCheckbox.checked);
+        });
+
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const age = parseInt(document.getElementById("age").value);
+            const weight = parseFloat(document.getElementById("weight").value);
+            const height = parseFloat(document.getElementById("height").value);
+            const disease = diseaseDetail.value.trim();
+            const hasDisease = hasDiseaseCheckbox.checked;
+
+            // ตรวจสอบ input
+            if (isNaN(age) || age < 15 || age > 60) return alert("กรุณากรอกอายุระหว่าง 15 - 60 ปี");
+            if (isNaN(weight) || weight <= 0) return alert("กรุณากรอกน้ำหนักให้ถูกต้อง");
+            if (isNaN(height) || height <= 0) return alert("กรุณากรอกส่วนสูงให้ถูกต้อง");
+            if (hasDisease && disease === "") return alert("กรุณาระบุโรคประจำตัว");
+
+            // คำนวณ BMI
+            const bmi = weight / ((height / 100) ** 2);
+            let status = "";
+
+            if (bmi < 18.5) status = "น้ำหนักน้อย";
+            else if (bmi < 23) status = "ปกติ";
+            else if (bmi < 25) status = "น้ำหนักเกิน";
+            else status = "อ้วน";
+
+            // แสดงผลลัพธ์ใน Modal
+            document.getElementById("bmiResult").innerText = `ค่า BMI: ${bmi.toFixed(2)} (${status})`;
+            document.getElementById("resultModal").classList.remove("hidden");
+        });
+
+        function closeModal() {
+            document.getElementById("resultModal").classList.add("hidden");
+        }
+    </script>
+
+</body>
+
+</html>
